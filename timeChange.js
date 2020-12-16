@@ -1,9 +1,6 @@
 // Wait for DOM to load, then run callback function
 document.addEventListener('DOMContentLoaded', () => {
 
-  // grab event details title div block
-  let eventDetailsTitle = document.getElementById("block-f8bcca40e6962c1021ba");
-
   // get timezone of user
   let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   // works w/ 95% of browsers (2019)
@@ -12,94 +9,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let title = "all times in calendar below are in " + timeZone;
 
-  // replace event details title with dynamic time zone text
-  eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
+  // Wait 3 seconds for calendar to load, then run script
+  setTimeout(() => {
 
-  // grab all span elements in calendar that have times (small time blocks)
-  let times = document.getElementsByClassName("item-time item-time--12hr");
-  // times == [<span>, <span>, ... ]
-  // times[1] == <span class="item-time item-time--12hr">8p&nbsp;</span>
+    // grab event details title div block
+    let eventDetailsTitle = document.getElementById("block-f8bcca40e6962c1021ba");
 
-  // loop through EST times
-  for (let i = 0; i < times.length; i++) {
-    let time = times[i];
-    // time == <span class="item-time item-time--12hr">8p&nbsp;</span>
-    // time == <span class="item-time item-time--12hr">10a&nbsp;</span>
-    // time == <span class="item-time item-time--12hr">2:30p&nbsp;</span>
+    // replace event details title with dynamic time zone text
+    eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
 
-    // grab EST time
-    let estTime = time.innerHTML.split("&")[0];
-    // estTime == "10a"
+    // grab all span elements in calendar that have times (small time blocks)
+    let times = document.getElementsByClassName("item-time item-time--12hr");
+    // times == [<span>, <span>, ... ]
+    // times[1] == <span class="item-time item-time--12hr">8p&nbsp;</span>
+    
+    // loop through EST times
+    for (let i = 0; i < times.length; i++) {
+      let time = times[i];
+      // time == <span class="item-time item-time--12hr">8p&nbsp;</span>
+      // time == <span class="item-time item-time--12hr">10a&nbsp;</span>
+      // time == <span class="item-time item-time--12hr">2:30p&nbsp;</span>
 
-    // convert EST time to users timezone
-    let newTime = formatAndConvertTZ(estTime);
-    // newTime == "7a"
+      // grab EST time
+      let estTime = time.innerHTML.split("&")[0];
+      // estTime == "10a"
 
-    // replace inner span text with new time
-    time.innerHTML = `${newTime}&nbsp`;
-    // time == <span class="item-time item-time--12hr">7a&nbsp;</span>
-  }
+      // convert EST time to users timezone
+      let newTime = formatAndConvertTZ(estTime);
+      // newTime == "7a"
 
-
-  // grab all li elements in calendar (big time blocks)
-  let bigSquareTimes = document.getElementsByClassName("flyoutitem");
-  // bigSquareTimes = [<li>, <li>, ...]
-
-  // loop through EST bigSquareTimes
-  for (let i = 0; i < bigSquareTimes.length; i++) {
-    let time = bigSquareTimes[i].children[1].innerText;
-    // time == "10:00am – 4:00pm"   or       "Fri, Dec 4, 7:00pm – Sun, Dec 6, 11:55pm"
-
-    // convert times to "10a" or "10:30a" format
-    // grab first time and remove " " from ends
-    let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
-    // startTime == "10:00am "    or   "Fri, Dec 4, 7:00pm "
-    debugger
-
-    // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
-    if (startTime.length > 8) {
-      debugger
-      // grab only time at end (ex. "7:00pm")
-      startTime = startTime.split(" ");
-      startTime = startTime[startTime.length - 1];
-      debugger
+      // replace inner span text with new time
+      time.innerHTML = `${newTime}&nbsp`;
+      // time == <span class="item-time item-time--12hr">7a&nbsp;</span>
     }
 
-    // remove "m"
-    startTime = removeM(startTime);
-    debugger
-    // grab ending time and remove " " from ends
-    let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
-    // endTime == " 4:00pm"
-    debugger
 
-    // if time is in long format (ex. " Sun, Dec 6, 11:55pm")
-    if (endTime.length > 8) {
-      debugger
-      // grab only time at end (ex. "11:55pm")
-      endTime = endTime.split(" ");
-      endTime = endTime[endTime.length - 1];
-      // endTime == "11:55pm"
-      debugger
+    // grab all li elements in calendar (big time blocks)
+    let bigSquareTimes = document.getElementsByClassName("flyoutitem");
+    // bigSquareTimes = [<li>, <li>, ...]
+
+    // loop through EST bigSquareTimes
+    for (let i = 0; i < bigSquareTimes.length; i++) {
+      let time = bigSquareTimes[i].children[1].innerText;
+      // time == "10:00am – 4:00pm"   or       "Fri, Dec 4, 7:00pm – Sun, Dec 6, 11:55pm"
+
+      // convert times to "10a" or "10:30a" format
+      // grab first time and remove " " from ends
+      let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
+      // startTime == "10:00am "    or   "Fri, Dec 4, 7:00pm "
+
+
+      // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
+      if (startTime.length > 8) {
+
+        // grab only time at end (ex. "7:00pm")
+        startTime = startTime.split(" ");
+        startTime = startTime[startTime.length - 1];
+
+      }
+
+      // remove "m"
+      startTime = removeM(startTime);
+
+      // grab ending time and remove " " from ends
+      let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
+      // endTime == " 4:00pm"
+
+
+      // if time is in long format (ex. " Sun, Dec 6, 11:55pm")
+      if (endTime.length > 8) {
+
+        // grab only time at end (ex. "11:55pm")
+        endTime = endTime.split(" ");
+        endTime = endTime[endTime.length - 1];
+        // endTime == "11:55pm"
+
+      }
+
+      // remove "m"
+      endTime = removeM(endTime);
+      // endTIme == "11:55p"
+
+      // convert EST times to users time zone
+      let newStartTime = formatAndConvertTZ2(startTime);
+      // newStartTime == "1p"  or   "1:30p"
+
+      let newEndTime = formatAndConvertTZ2(endTime);
+
+      let newTime = newStartTime + " – " + newEndTime;
+
+      // replace time with users time
+      bigSquareTimes[i].children[1].innerHTML = newTime;
     }
 
-    // remove "m"
-    endTime = removeM(endTime);
-    // endTIme == "11:55p"
-    debugger
-    // convert EST times to users time zone
-    let newStartTime = formatAndConvertTZ2(startTime);
-    // newStartTime == "1p"  or   "1:30p"
-    debugger
-    let newEndTime = formatAndConvertTZ2(endTime);
-    debugger
-    let newTime = newStartTime + " – " + newEndTime;
-    debugger
-    // replace time with users time
-    bigSquareTimes[i].children[1].innerHTML = newTime;
-  }
+  }, 3000);
 
 
+  // HELPER FUNCTIONS
   function removeM(str) {
     return str.split("").filter(char => char !== "m").join("");
   }
@@ -234,6 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 2) Test Live
-  // 3) Test on various browsers
+  // 1) Fix Bug on dates Dec 14-20
+  // 2) Change times below calendar
+  // 3) Change times on individual page
+  // 4) Test on various browsers
 });
