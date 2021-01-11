@@ -149,6 +149,23 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
           bigSquareTimes[i].children[1].innerHTML = newTime;
         }
 
+
+        // *************************************************************************
+        // REPLACE EVENT DETAILS TITLE (below calendar)
+
+        // replace event details title with dynamic time zone text
+        // grab event details title div block
+        let eventDetailsTitle2 = document.getElementById("block-3eaefd1791399d35520b").children[0];
+        // debugger
+
+        // replace event details title with dynamic time zone text
+        eventDetailsTitle2.children[1].children[0].innerHTML = title;
+    
+
+        // *************************************************************************
+        // REPLACE TIMES BELOW CALENDAR (posts)
+
+
       }, 0);
 
 

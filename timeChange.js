@@ -18,11 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // replace event details title with dynamic time zone text
     eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
 
+    
+    // *************************************************************************
+    // REPLACE CALENDAR TIMES (white text on black background squares)
+
     // grab all span elements in calendar that have times (small time blocks)
     let times = document.getElementsByClassName("item-time item-time--12hr");
     // times == [<span>, <span>, ... ]
     // times[1] == <span class="item-time item-time--12hr">8p&nbsp;</span>
-    
+
     // loop through EST times
     for (let i = 0; i < times.length; i++) {
       let time = times[i];
@@ -44,6 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // *************************************************************************
+    // REPLACE CALENDAR TIMES (black text on white squares on mouse hover)
+
     // grab all li elements in calendar (big time blocks)
     let bigSquareTimes = document.getElementsByClassName("flyoutitem");
     // bigSquareTimes = [<li>, <li>, ...]
@@ -57,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // grab first time and remove " " from ends
       let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
       // startTime == "10:00am "    or   "Fri, Dec 4, 7:00pm "
-
 
       // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
       if (startTime.length > 8) {
@@ -101,6 +107,25 @@ document.addEventListener('DOMContentLoaded', () => {
       // replace time with users time
       bigSquareTimes[i].children[1].innerHTML = newTime;
     }
+
+
+    // *************************************************************************
+    // REPLACE EVENT DETAILS TITLE (below calendar)
+
+    // replace event details title with dynamic time zone text
+    // grab event details title div block
+    let eventDetailsTitle2 = document.getElementById("block-3eaefd1791399d35520b").children[0];
+    // debugger
+    
+    // replace event details title with dynamic time zone text
+    eventDetailsTitle2.children[1].children[0].innerHTML = title;
+    // debugger
+
+
+    // *************************************************************************
+    // REPLACE TIMES BELOW CALENDAR (posts)
+
+    
 
   }, 0);
 
@@ -240,8 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 1) Fix Bug on dates Dec 14-20
-  // 2) Change times below calendar
-  // 3) Change times on individual page
-  // 4) Test on various browsers
+  // 1) Change times below calendar
+  // 2) Change times on individual page
+  // 3) Test on various browsers
 });
