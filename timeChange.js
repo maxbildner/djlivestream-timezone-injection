@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // replace event details title with dynamic time zone text
     eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
 
-    
+
     // *************************************************************************
     // REPLACE CALENDAR TIMES (white text on black background squares)
 
@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // grab first time and remove " " from ends
       let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
       // startTime == "10:00am "    or   "Fri, Dec 4, 7:00pm "
+
 
       // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
       if (startTime.length > 8) {
@@ -116,18 +117,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // grab event details title div block
     let eventDetailsTitle2 = document.getElementById("block-3eaefd1791399d35520b").children[0];
     // debugger
-    
+
     // replace event details title with dynamic time zone text
     eventDetailsTitle2.children[1].children[0].innerHTML = title;
-    // debugger
 
 
     // *************************************************************************
     // REPLACE TIMES BELOW CALENDAR (posts)
 
-    
+    // grab times below calendar
+    let timesBelowCalendar = document.getElementsByClassName("event-time-12hr");
+    // timesBelowCalendar == [ <span>  <time start>  <span> - </span>  <time end>  </span>, ... ]
 
-  }, 0);
+    // loop through times
+    for (let i = 0; i < timesBelowCalendar.length; i++) {
+      let time = timesBelowCalendar[i];
+
+      let startTime = time.children[0];
+      // startTime == <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>
+
+      let startTimeTxt = startTime.innerHTML;
+      // startTimeText == "1:00 AM"
+
+      startTimeTxt = formatTime3(startTimeTxt, true);
+
+      let newStartTime = formatAndConvertTZ2(startTimeTxt, true);
+
+      startTime.innerHTML = newStartTime;
+
+      let endTime = time.children[2];
+      // endTime == <time class="event-time-12hr-end" datetime="2021-01-12">3:05 AM</time>
+
+      let endTimeTxt = endTime.innerHTML;
+
+      endTimeTxt = formatTime3(endTimeTxt);
+
+      let newEndTime = formatAndConvertTZ2(endTimeTxt, true);
+
+      endTime.innerHTML = newEndTime;
+    }
+
+  }, 1);
+  // END OF CALLBACK ***********************************************************
+
 
 
   // HELPER FUNCTIONS
@@ -146,7 +178,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  function formatAndConvertTZ2(est) {
+  // "1:00 AM" => "1:00a" 
+  // "3:05 AM" => "3:05a"
+  function formatTime3(string) {
+    let newStr = "";
+
+    let strArr = string.split(" ");
+    // strArr = ["1:00", "AM"]
+
+    newStr += strArr[0];
+
+    let isAM = strArr[1][0] === "A";
+
+    if (isAM) {
+      newStr += "a";
+
+    } else {
+      newStr += "p";
+    }
+
+    return newStr;
+  }
+
+
+  function formatAndConvertTZ2(est, belowCal = false) {
     // est == "10a"   or "2:30p"
     let hours;
     let minutes;
@@ -172,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // hours == "8"     minutes == "30"
 
       est = (12 + Number(est[0].slice(0, est[0].length))) + ":" + minutes + ":00";
-
     }
 
     // let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toString();
@@ -183,18 +237,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAM = (userTime.split(" ")[2] === "AM");
     // isAM == true
 
-    userTime = userTime.split(" ")[1].slice(0, 4);
-    // userTime == "8:00"
+    // remove seconds
+    // userTime = userTime.split(" ")[1].slice(0, 4);
+    // userTime == "8:00"   or   "10:00"
+    userTime = userTime.split(" ")[1].split(":");
+    // userTime == ["10", "00", "00"]
+
+    userTime = userTime.slice(0, userTime.length - 1).join(":");
 
     let hasMinutes = Number(userTime.slice(2)) > 0;
     // hasMinutes == false
 
-    if (!hasMinutes) {
+    if (!hasMinutes && !belowCal) {
 
       // remove extra zeros "00"
       userTime = userTime.split(":")[0];
       // userTime == "8"
     }
+
 
     userTime = userTime + ((isAM) ? 'a' : 'p');
     // userTime == "8a"
@@ -265,7 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 1) Change times below calendar
-  // 2) Change times on individual page
-  // 3) Test on various browsers
+  // 1) Format times below calendar ("PM" and "AM")
+  // 2) Test Code for calendar times
+  // 3) Refactor format time zone functions
+  // 4) Change times on individual page
+  // 5) Test on various browsers
+
+  // DONE:
+  // - change times in calendar 
+  // - change times in calendar (on mouse hover)
+  // - change times below calendar
 });

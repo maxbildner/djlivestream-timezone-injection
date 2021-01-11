@@ -65,6 +65,10 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
         // replace event details title with dynamic time zone text
         eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
 
+
+        // *************************************************************************
+        // REPLACE CALENDAR TIMES (white text on black background squares)
+
         // grab all span elements in calendar that have times (small time blocks)
         let times = document.getElementsByClassName("item-time item-time--12hr");
         // times == [<span>, <span>, ... ]
@@ -90,6 +94,9 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
           // time == <span class="item-time item-time--12hr">7a&nbsp;</span>
         }
 
+
+        // *************************************************************************
+        // REPLACE CALENDAR TIMES (black text on white squares on mouse hover)
 
         // grab all li elements in calendar (big time blocks)
         let bigSquareTimes = document.getElementsByClassName("flyoutitem");
@@ -165,8 +172,41 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
         // *************************************************************************
         // REPLACE TIMES BELOW CALENDAR (posts)
 
+        // grab times below calendar
+        let timesBelowCalendar = document.getElementsByClassName("event-time-12hr");
+        // timesBelowCalendar == [ <span>  <time start>  <span> - </span>  <time end>  </span>, ... ]
 
-      }, 0);
+        // loop through times
+        for (let i = 0; i < timesBelowCalendar.length; i++) {
+          let time = timesBelowCalendar[i];
+
+          let startTime = time.children[0];
+          // startTime == <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>
+
+          let startTimeTxt = startTime.innerHTML;
+          // startTimeText == "1:00 AM"
+
+          startTimeTxt = formatTime3(startTimeTxt, true);
+
+          let newStartTime = formatAndConvertTZ2(startTimeTxt, true);
+          
+          startTime.innerHTML = newStartTime;
+          
+          let endTime = time.children[2];
+          // endTime == <time class="event-time-12hr-end" datetime="2021-01-12">3:05 AM</time>
+          
+          let endTimeTxt = endTime.innerHTML;
+          
+          endTimeTxt = formatTime3(endTimeTxt);
+          
+          let newEndTime = formatAndConvertTZ2(endTimeTxt, true);
+          
+          endTime.innerHTML = newEndTime;
+        }
+
+      }, 1);
+      // END OF CALLBACK ***********************************************************
+
 
 
       // HELPER FUNCTIONS
@@ -185,56 +225,84 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
       }
 
 
-      function formatAndConvertTZ2(est) {
+      // "1:00 AM" => "1:00a" 
+      // "3:05 AM" => "3:05a"
+      function formatTime3(string) {
+        let newStr = "";
+
+        let strArr = string.split(" ");
+        // strArr = ["1:00", "AM"]
+
+        newStr += strArr[0];
+
+        let isAM = strArr[1][0] === "A";
+
+        if (isAM) {
+          newStr += "a";
+
+        } else {
+          newStr += "p";
+        }
+
+        return newStr;
+      }
+
+
+      function formatAndConvertTZ2(est, belowCal=false) {
         // est == "10a"   or "2:30p"
         let hours;
         let minutes;
-
+        
         // convert est string to 24 hour string format ("20:00:00")
         // if AM time
         if (est[est.length - 1].toLowerCase() === "a") {
           est = est.split(":");
           // est == ["10a"]   or ["10", "30a"]
-
+          
           hours = est[0];
           minutes = (est[1]) ? est[1].slice(0, est[1].length - 1) : "00";
           est = `${hours}:${minutes}:00`;
           // est == "8:00:00"   or "8:30:00"
-
+          
           // else PM time
         } else {
           est = est.split(":");
           // est == ["8p"]   or ["8", "30p"]
-
+          
           hours = est[0];
           minutes = (est[1]) ? est[1].slice(0, est[1].length - 1) : "00";
           // hours == "8"     minutes == "30"
 
           est = (12 + Number(est[0].slice(0, est[0].length))) + ":" + minutes + ":00";
-
         }
 
         // let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toString();
         // userTIme == "Tue Nov 03 2020 08:00:00 GMT-0500 (Eastern Standard Time)"
         let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toLocaleString();
         // userTime == "11/3/2020, 8:00:00 AM"
-
+        
         let isAM = (userTime.split(" ")[2] === "AM");
         // isAM == true
 
-        userTime = userTime.split(" ")[1].slice(0, 4);
-        // userTime == "8:00"
-
+        // remove seconds
+        // userTime = userTime.split(" ")[1].slice(0, 4);
+        // userTime == "8:00"   or   "10:00"
+        userTime = userTime.split(" ")[1].split(":");
+        // userTime == ["10", "00", "00"]
+        
+        userTime = userTime.slice(0, userTime.length - 1).join(":");
+        
         let hasMinutes = Number(userTime.slice(2)) > 0;
         // hasMinutes == false
-
-        if (!hasMinutes) {
-
+        
+        if (!hasMinutes && !belowCal) {
+          
           // remove extra zeros "00"
           userTime = userTime.split(":")[0];
           // userTime == "8"
         }
-
+        
+        
         userTime = userTime + ((isAM) ? 'a' : 'p');
         // userTime == "8a"
 
@@ -304,10 +372,16 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
       }
 
       // TO DO:
-      // 1) Fix Bug on dates Dec 14-20
-      // 2) Change times below calendar
-      // 3) Change times on individual page
-      // 4) Test on various browsers
+      // 1) Format times below calendar ("PM" and "AM")
+      // 2) Test Code for calendar times
+      // 3) Refactor format time zone functions
+      // 4) Change times on individual page
+      // 5) Test on various browsers
+
+      // DONE:
+      // - change times in calendar 
+      // - change times in calendar (on mouse hover)
+      // - change times below calendar
     });
 </script><script>Static.COOKIE_BANNER_CAPABLE = true;</script>
 <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', 'UA-162744840-1', 'auto');ga('send', 'pageview');</script><!-- End of Squarespace Headers -->
