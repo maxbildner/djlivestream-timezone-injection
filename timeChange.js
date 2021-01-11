@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bigSquareTimes[i].children[1].innerHTML = newTime;
     }
 
-  }, 3000);
+  }, 0);
 
 
   // HELPER FUNCTIONS
