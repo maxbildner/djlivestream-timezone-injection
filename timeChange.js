@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let title = "all times in calendar below are in " + timeZone;
 
-  // Wait 3 seconds for calendar to load, then run script
+  // Wait 2 seconds for calendar to load, then run script
   setTimeout(() => {
 
     // grab event details title div block
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // convert times to "10a" or "10:30a" format
       // grab first time and remove " " from ends
       let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
-      // startTime == "10:00am "    or   "Fri, Dec 4, 7:00pm "
+      // startTime == "10:00am"    or   "Fri, Dec 4, 7:00pm "
 
 
       // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // grab ending time and remove " " from ends
       let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
-      // endTime == " 4:00pm"
+      // endTime == "4:00pm"    or    "Fri, Jan 1, 2:30pm"
 
 
       // if time is in long format (ex. " Sun, Dec 6, 11:55pm")
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // convert EST times to users time zone
       let newStartTime = formatAndConvertTZ2(startTime);
-      // newStartTime == "1p"  or   "1:30p"
+      // newStartTime == "1p"  or   "1:30p"   (will be "1p" if no minutes ex. 1:30)
 
       let newEndTime = formatAndConvertTZ2(endTime);
 
@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // replace event details title with dynamic time zone text
     // grab event details title div block
     let eventDetailsTitle2 = document.getElementById("block-3eaefd1791399d35520b").children[0];
-    // debugger
 
     // replace event details title with dynamic time zone text
     eventDetailsTitle2.children[1].children[0].innerHTML = title;
@@ -157,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
       endTime.innerHTML = newEndTime;
     }
 
-  }, 1);
+  }, 2000);
   // END OF CALLBACK ***********************************************************
 
 
@@ -201,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+  // "2:30p"    =>    "11:30a"
   function formatAndConvertTZ2(est, belowCal = false) {
     // est == "10a"   or "2:30p"
     let hours;
@@ -229,23 +229,22 @@ document.addEventListener('DOMContentLoaded', () => {
       est = (12 + Number(est[0].slice(0, est[0].length))) + ":" + minutes + ":00";
     }
 
-    // let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toString();
-    // userTIme == "Tue Nov 03 2020 08:00:00 GMT-0500 (Eastern Standard Time)"
+    // convert EST time to user's time
     let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toLocaleString();
     // userTime == "11/3/2020, 8:00:00 AM"
 
     let isAM = (userTime.split(" ")[2] === "AM");
     // isAM == true
 
-    // remove seconds
-    // userTime = userTime.split(" ")[1].slice(0, 4);
-    // userTime == "8:00"   or   "10:00"
+    // grab hh:mm:ss part only
     userTime = userTime.split(" ")[1].split(":");
     // userTime == ["10", "00", "00"]
 
+    // remove seconds
     userTime = userTime.slice(0, userTime.length - 1).join(":");
+    // userTime == "8:00"   or   "10:00"    or    "10:30" (if on mouse hover and long time format)
 
-    let hasMinutes = Number(userTime.slice(2)) > 0;
+    let hasMinutes = userTime.split(":")[1] !== "00";
     // hasMinutes == false
 
     if (!hasMinutes && !belowCal) {
@@ -253,8 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // remove extra zeros "00"
       userTime = userTime.split(":")[0];
       // userTime == "8"
-    }
 
+    }
 
     userTime = userTime + ((isAM) ? 'a' : 'p');
     // userTime == "8a"
@@ -325,13 +324,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 1) Format times below calendar ("PM" and "AM")
+  // 1) fix formatting- day / month getting cut off on calender events mouse hover for long times
   // 2) Test Code for calendar times
-  // 3) Refactor format time zone functions
-  // 4) Change times on individual page
-  // 5) Test on various browsers
+  // 3) Format times below calendar ("PM" and "AM")
+  // 4) Refactor format time zone functions
+  // 5) Change times on individual page
+  // 6) Test on various browsers / devices
 
   // DONE:
+  // - Fix bug- minutes getting cut off calendar events mouse hover for long times
   // - change times in calendar 
   // - change times in calendar (on mouse hover)
   // - change times below calendar
