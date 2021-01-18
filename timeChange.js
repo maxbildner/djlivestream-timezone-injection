@@ -324,13 +324,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 1) Test Code for calendar times
-  // 2) Format times below calendar ("PM" and "AM")
+  // 1) Fix times for calendar on hover events longer than one day
+  // 2) write code to change times on individual event page
   // 3) Refactor format time zone functions- consolidate into 1 function
-  // 4) Change times on individual page
+  // 4) Format times below calendar ("PM" and "AM")
   // 5) Test on various browsers / devices
 
   // DONE:
+  // - Test Code for calendar times / times below calendar
   // - fix bug- times below calendar not coverting to users time
   // - fix formatting- day / month getting cut off on calender events mouse hover for long times
   // - Fix bug- minutes getting cut off calendar events mouse hover for long times
