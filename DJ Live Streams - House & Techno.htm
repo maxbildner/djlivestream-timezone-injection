@@ -117,6 +117,7 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
           // grab ending time and remove " " from ends
           let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
           // endTime == "4:00pm"    or    "Fri, Jan 1, 2:30pm"
+
           // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
           if (timeIsMultiday) {
             
@@ -184,7 +185,7 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
           // startTimeTxt == "1:00p"
           
           // convert EST to users time zone
-          let newStartTime = formatAndConvertTZ2(startTimeTxt, true);
+          let newStartTime = formatAndConvertTZ2(startTimeTxt, true) + "m";
           
           // replace old time with new time
           startTime.innerHTML = newStartTime;
@@ -196,7 +197,7 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
 
           endTimeTxt = formatTime3(endTimeTxt);
 
-          let newEndTime = formatAndConvertTZ2(endTimeTxt, true);
+          let newEndTime = formatAndConvertTZ2(endTimeTxt, true) + "m";
 
           endTime.innerHTML = newEndTime;
 
@@ -285,8 +286,6 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
       // "2:30p"    =>    "11:30a"
       function formatAndConvertTZ2(est, belowCal = false) {
         // est == "10a"   or "2:30p"
-        let hours;
-        let minutes;
 
         // convert est string to 24 hour string format ("20:00:00")
         est = convertTo24HRFormat(est);

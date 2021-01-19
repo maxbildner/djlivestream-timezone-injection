@@ -60,38 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
       let time = bigSquareTimes[i].children[1].innerText;
       // time == "10:00am – 4:00pm"   or       "Fri, Dec 4, 7:00pm – Sun, Dec 6, 11:55pm"
 
-      // convert times to "10a" or "10:30a" format
+      let timeIsMultiday = time.length > 17;
+
       // grab first time and remove " " from ends
       let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
       // startTime == "10:00am"    or   "Fri, Dec 4, 7:00pm "
-
-      // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
-      if (startTime.length > 8) {
-
-        // grab only time at end (ex. "7:00pm")
-        startTime = startTime.split(" ");
-        startTime = startTime[startTime.length - 1];
-
-      }
-
-      // remove "m"
-      // startTime = removeM(startTime);
-      startTime = removeChar(startTime, "m");
 
       // grab ending time and remove " " from ends
       let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
       // endTime == "4:00pm"    or    "Fri, Jan 1, 2:30pm"
 
-      // if time is in long format (ex. " Sun, Dec 6, 11:55pm")
-      if (endTime.length > 8) {
+      // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
+      if (timeIsMultiday) {
 
-        // grab only time at end (ex. "11:55pm")
+        // grab Day, Month, Date, Start Time
+        startTime = startTime.split(" ");
+        var startDay = removeChar(startTime[0], ",");   // "Sat"
+        var startMonth = startTime[1];                  // "Dec"
+        var startDate = removeChar(startTime[2], ",");  // "26"
+        startTime = startTime[startTime.length - 1];    // "1:30pm"
+
+        // grab Day, Month, Date, End Time
         endTime = endTime.split(" ");
-        endTime = endTime[endTime.length - 1];
-        // endTime == "11:55pm"
+        var endDay = removeChar(endTime[0], ",");     // "Fri"
+        var endMonth = endTime[1];                    // "Jan"
+        var endDate = removeChar(endTime[2], ",");    // "1"
+        endTime = endTime[endTime.length - 1];        // "2:30pm"
       }
 
       // remove "m"
+      startTime = removeChar(startTime, "m");
       endTime = removeChar(endTime, "m");
       // endTime == "11:55p"
 
@@ -101,22 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let newEndTime = formatAndConvertTZ2(endTime);
 
-      let newTime = newStartTime + " – " + newEndTime;
+      let newTime;
+      if (timeIsMultiday) {
+        newTime = `${startDay}, ${startMonth} ${startDate}, ${newStartTime}m – ${endDay}, ${endMonth} ${endDate}, ${newEndTime}m`;
+
+      } else {
+        newTime = `${newStartTime}m – ${newEndTime}m`;
+      }
 
       // replace time with users time
       bigSquareTimes[i].children[1].innerHTML = newTime;
     }
-
-
-    // *************************************************************************
-    // REPLACE EVENT DETAILS TITLE (below calendar)
-
-    // replace event details title with dynamic time zone text
-    // grab event details title div block
-    let eventDetailsTitle2 = document.getElementById("block-3eaefd1791399d35520b").children[0];
-
-    // replace event details title with dynamic time zone text
-    eventDetailsTitle2.children[1].children[0].innerHTML = title;
 
 
     // *************************************************************************
@@ -144,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // startTimeTxt == "1:00p"
 
       // convert EST to users time zone
-      let newStartTime = formatAndConvertTZ2(startTimeTxt, true);
+      let newStartTime = formatAndConvertTZ2(startTimeTxt, true) + "m";
 
       // replace old time with new time
       startTime.innerHTML = newStartTime;
@@ -156,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       endTimeTxt = formatTime3(endTimeTxt);
 
-      let newEndTime = formatAndConvertTZ2(endTimeTxt, true);
+      let newEndTime = formatAndConvertTZ2(endTimeTxt, true) + "m";
 
       endTime.innerHTML = newEndTime;
 
@@ -245,8 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // "2:30p"    =>    "11:30a"
   function formatAndConvertTZ2(est, belowCal = false) {
     // est == "10a"   or "2:30p"
-    let hours;
-    let minutes;
 
     // convert est string to 24 hour string format ("20:00:00")
     est = convertTo24HRFormat(est);
@@ -324,13 +315,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // TO DO:
-  // 1) Fix times for calendar on hover events longer than one day
+  // 1) TEST- Fix times for calendar on hover events longer than one day
   // 2) write code to change times on individual event page
+  // 3) write code to change times below calendar (white calender box)
   // 3) Refactor format time zone functions- consolidate into 1 function
   // 4) Format times below calendar ("PM" and "AM")
   // 5) Test on various browsers / devices
 
   // DONE:
+  // - Fix times for calendar on hover events longer than one day
   // - Test Code for calendar times / times below calendar
   // - fix bug- times below calendar not coverting to users time
   // - fix formatting- day / month getting cut off on calender events mouse hover for long times
