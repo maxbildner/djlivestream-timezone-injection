@@ -59,149 +59,211 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
 
       // Wait 2 seconds for calendar to load, then run script
       setTimeout(() => {
-
-        // grab event details title div block
-        let eventDetailsTitle = document.getElementById("block-f8bcca40e6962c1021ba");
-
-        // replace event details title with dynamic time zone text
-        eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
-
-
-        // *************************************************************************
-        // REPLACE CALENDAR TIMES (white text on black background squares)
-
-        // grab all span elements in calendar that have times (small time blocks)
-        let times = document.getElementsByClassName("item-time item-time--12hr");
-        // times == [<span>, <span>, ... ]
-        // times[1] == <span class="item-time item-time--12hr">8p&nbsp;</span>
-
-        // loop through EST times
-        for (let i = 0; i < times.length; i++) {
-          let time = times[i];
-          // time == <span class="item-time item-time--12hr">8p&nbsp;</span>
-          // time == <span class="item-time item-time--12hr">10a&nbsp;</span>
-          // time == <span class="item-time item-time--12hr">2:30p&nbsp;</span>
-
-          // grab EST time
-          let estTime = time.innerHTML.split("&")[0];
-          // estTime == "10a"
-
-          // convert EST time to users timezone
-          let newTime = formatAndConvertTZ(estTime);
-          // newTime == "7a"
-
-          // replace inner span text with new time
-          time.innerHTML = `${newTime}&nbsp`;
-          // time == <span class="item-time item-time--12hr">7a&nbsp;</span>
-        }
-
-
-        // *************************************************************************
-        // REPLACE CALENDAR TIMES (black text on white squares on mouse hover)
-
-        // grab all li elements in calendar (big time blocks)
-        let bigSquareTimes = document.getElementsByClassName("flyoutitem");
-        // bigSquareTimes = [<li>, <li>, ...]
-
-        // loop through EST bigSquareTimes
-        for (let i = 0; i < bigSquareTimes.length; i++) {
-          let time = bigSquareTimes[i].children[1].innerText;
-          // time == "10:00am – 4:00pm"   or       "Fri, Dec 4, 7:00pm – Sun, Dec 6, 11:55pm"
-
-          let timeIsMultiday = time.length > 17;
-
-          // grab first time and remove " " from ends
-          let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
-          // startTime == "10:00am"    or   "Fri, Dec 4, 7:00pm "
-          
-          // grab ending time and remove " " from ends
-          let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
-          // endTime == "4:00pm"    or    "Fri, Jan 1, 2:30pm"
-
-          // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
-          if (timeIsMultiday) {
-            
-            // grab Day, Month, Date, Start Time
-            startTime = startTime.split(" ");
-            var startDay = removeChar(startTime[0], ",");   // "Sat"
-            var startMonth = startTime[1];                  // "Dec"
-            var startDate = removeChar(startTime[2], ",");  // "26"
-            startTime = startTime[startTime.length - 1];    // "1:30pm"
-            
-            // grab Day, Month, Date, End Time
-            endTime = endTime.split(" ");
-            var endDay = removeChar(endTime[0], ",");     // "Fri"
-            var endMonth = endTime[1];                    // "Jan"
-            var endDate = removeChar(endTime[2], ",");    // "1"
-            endTime = endTime[endTime.length - 1];        // "2:30pm"
-          }
-          
-          // remove "m"
-          startTime = removeChar(startTime, "m");
-          endTime = removeChar(endTime, "m");
-          // endTime == "11:55p"
-
-          // convert EST times to users time zone
-          let newStartTime = formatAndConvertTZ2(startTime);
-          // newStartTime == "1p"  or   "1:30p"   (will be "1p" if no minutes ex. 1:30)
-
-          let newEndTime = formatAndConvertTZ2(endTime);
-
-          let newTime;
-          if (timeIsMultiday) {
-            newTime = `${startDay}, ${startMonth} ${startDate}, ${newStartTime}m – ${endDay}, ${endMonth} ${endDate}, ${newEndTime}m`;
-
-          } else {
-            newTime = `${newStartTime}m – ${newEndTime}m`;
-          }
-          
-          // replace time with users time
-          bigSquareTimes[i].children[1].innerHTML = newTime;
-        }
-
-
-        // *************************************************************************
-        // REPLACE TIMES BELOW CALENDAR (posts)
-
-        // grab times below calendar
-        let timesBelowCalendar = document.getElementsByClassName("event-time-12hr");
-        // timesBelowCalendar == [ <span>  <time start>  <span> - </span>  <time end>  </span>, ... ]
         
-        // loop through times
-        for (let i = 0; i < timesBelowCalendar.length; i++) {
-          let time = timesBelowCalendar[i].children;
-          // time == [ <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>, <time>, <time> ]
-          
-          // if time not listed on event, skip this loop iteration so we don't error out
-          if (time.length === 0) continue;
+        let onGuidePage = document.getElementById("block-adca8940b5d4e8b50a06") !== null;
 
-          let startTime = time[0];
-          // startTime == <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>
-          
-          let startTimeTxt = startTime.innerHTML;
-          // startTime == "1:00 AM"
-          
-          startTimeTxt = formatTime3(startTimeTxt, true);
-          // startTimeTxt == "1:00p"
-          
-          // convert EST to users time zone
-          let newStartTime = formatAndConvertTZ2(startTimeTxt, true) + "m";
-          
-          // replace old time with new time
-          startTime.innerHTML = newStartTime;
-          
-          let endTime = time[2];
-          // endTime == <time class="event-time-12hr-end" datetime="2021-01-12">3:05 AM</time>
+        // if we're on the guide page (not an individual event page)
+        if (onGuidePage) {
 
-          let endTimeTxt = endTime.innerHTML;
+          // grab event details title div block
+          let eventDetailsTitle = document.getElementById("block-f8bcca40e6962c1021ba");
+          // replace event details title with dynamic time zone text
+          eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
+  
+  
+          // *************************************************************************
+          // REPLACE CALENDAR TIMES (white text on black background squares)
+  
+          // grab all span elements in calendar that have times (small time blocks)
+          let times = document.getElementsByClassName("item-time item-time--12hr");
+          // times == [<span>, <span>, ... ]
+          // times[1] == <span class="item-time item-time--12hr">8p&nbsp;</span>
+  
+          // loop through EST times
+          for (let i = 0; i < times.length; i++) {
+            let time = times[i];
+            // time == <span class="item-time item-time--12hr">8p&nbsp;</span>
+            // time == <span class="item-time item-time--12hr">10a&nbsp;</span>
+            // time == <span class="item-time item-time--12hr">2:30p&nbsp;</span>
+  
+            // grab EST time
+            let estTime = time.innerHTML.split("&")[0];
+            // estTime == "10a"
+  
+            // convert EST time to users timezone
+            let newTime = formatAndConvertTZ(estTime);
+            // newTime == "7a"
+  
+            // replace inner span text with new time
+            time.innerHTML = `${newTime}&nbsp`;
+            // time == <span class="item-time item-time--12hr">7a&nbsp;</span>
+          }
+  
+  
+          // *************************************************************************
+          // REPLACE CALENDAR TIMES (black text on white squares on mouse hover)
+  
+          // grab all li elements in calendar (big time blocks)
+          let bigSquareTimes = document.getElementsByClassName("flyoutitem");
+          // bigSquareTimes = [<li>, <li>, ...]
+  
+          // loop through EST bigSquareTimes
+          for (let i = 0; i < bigSquareTimes.length; i++) {
+            let time = bigSquareTimes[i].children[1].innerText;
+            // time == "10:00am – 4:00pm"   or       "Fri, Dec 4, 7:00pm – Sun, Dec 6, 11:55pm"
+  
+            let timeIsMultiday = time.length > 17;
+  
+            // grab first time and remove " " from ends
+            let startTime = time.split("–")[0].trim();                              // "–" DOES NOT == regular dash "-"
+            // startTime == "10:00am"    or   "Fri, Dec 4, 7:00pm "
+            
+            // grab ending time and remove " " from ends
+            let endTime = time.split("–")[1].trim();                                // "–" DOES NOT == regular dash "-"
+            // endTime == "4:00pm"    or    "Fri, Jan 1, 2:30pm"
+  
+            // if time is in long format (ex. "Fri, Dec 4, 7:00pm ") 
+            if (timeIsMultiday) {
+              
+              // grab Day, Month, Date, Start Time
+              startTime = startTime.split(" ");
+              var startDay = removeChar(startTime[0], ",");   // "Sat"
+              var startMonth = startTime[1];                  // "Dec"
+              var startDate = removeChar(startTime[2], ",");  // "26"
+              startTime = startTime[startTime.length - 1];    // "1:30pm"
+              
+              // grab Day, Month, Date, End Time
+              endTime = endTime.split(" ");
+              var endDay = removeChar(endTime[0], ",");     // "Fri"
+              var endMonth = endTime[1];                    // "Jan"
+              var endDate = removeChar(endTime[2], ",");    // "1"
+              endTime = endTime[endTime.length - 1];        // "2:30pm"
+            }
+            
+            // remove "m"
+            startTime = removeChar(startTime, "m");
+            endTime = removeChar(endTime, "m");
+            // endTime == "11:55p"
+  
+            // convert EST times to users time zone
+            let newStartTime = formatAndConvertTZ2(startTime);
+            // newStartTime == "1p"  or   "1:30p"   (will be "1p" if no minutes ex. 1:30)
+  
+            let newEndTime = formatAndConvertTZ2(endTime);
+  
+            let newTime;
+            if (timeIsMultiday) {
+              newTime = `${startDay}, ${startMonth} ${startDate}, ${newStartTime}m – ${endDay}, ${endMonth} ${endDate}, ${newEndTime}m`;
+  
+            } else {
+              newTime = `${newStartTime}m – ${newEndTime}m`;
+            }
+            
+            // replace time with users time
+            bigSquareTimes[i].children[1].innerHTML = newTime;
+          }
+  
+  
+          // *************************************************************************
+          // REPLACE TIMES BELOW CALENDAR (posts)
+  
+          // grab times below calendar
+          let timesBelowCalendar = document.getElementsByClassName("event-time-12hr");
+          // timesBelowCalendar == [ <span>  <time start>  <span> - </span>  <time end>  </span>, ... ]
+          
+          // loop through times
+          for (let i = 0; i < timesBelowCalendar.length; i++) {
+            let time = timesBelowCalendar[i].children;
+            // time == [ <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>, <time>, <time> ]
+            
+            // if time not listed on event, skip this loop iteration so we don't error out
+            if (time.length === 0) continue;
+  
+            let startTime = time[0];
+            // startTime == <time class="event-time-12hr-start" datetime="2021-01-12">1:00 AM</time>
+            
+            let startTimeTxt = startTime.innerHTML;
+            // startTime == "1:00 AM"
+            
+            startTimeTxt = formatTime3(startTimeTxt, true);
+            // startTimeTxt == "1:00p"
+            
+            // convert EST to users time zone
+            let newStartTime = formatAndConvertTZ2(startTimeTxt, true) + "m";
+            
+            // replace old time with new time
+            startTime.innerHTML = newStartTime;
+            
+            let endTime = time[2];
+            // endTime == <time class="event-time-12hr-end" datetime="2021-01-12">3:05 AM</time>
+  
+            let endTimeTxt = endTime.innerHTML;
+  
+            endTimeTxt = formatTime3(endTimeTxt);
+  
+            let newEndTime = formatAndConvertTZ2(endTimeTxt, true) + "m";
+  
+            endTime.innerHTML = newEndTime;
+  
+          }
 
-          endTimeTxt = formatTime3(endTimeTxt);
 
-          let newEndTime = formatAndConvertTZ2(endTimeTxt, true) + "m";
+          // *************************************************************************
+          // we are on an individual event page
+        } else {
+          
+          let newNote = "Note: all times in flyer are in " + timeZone;
 
-          endTime.innerHTML = newEndTime;
+          // grab note html element
+          let note = document.getElementsByClassName("sqs-block-content")[0].children[1];
+          // note == <p class="" style="white-space:pre-wrap;"><em>Note: all times in flyer are PST (GMT-8)</em></p>
 
+          // if note is not undefined (exists), update note inner text to display users time
+          if (note) note.innerText = newNote;
+
+          // grab event times (lefthand sidebar)
+          let times = document.getElementsByClassName("event-time-12hr");
+          // times == [time.event-time-12hr, time.event-time-12hr]
+
+          let isMultiDayEvent = times.length > 1;
+
+          let startTime;
+          let endTime;
+          let startTimeTxt;
+          let endTimeTxt;
+          let newStartTime;
+          let newEndTime;
+
+          if (isMultiDayEvent) {
+            startTime = times[0];
+            endTime = times[1];
+            // startTime == <time class="event-time-12hr" datetime="2020-12-26">1:30 PM</time>
+            // endTime == <time class="event-time-12hr" datetime="2020-12-26">2:30 PM</time>
+
+            // NOT a multi day event
+          } else {
+
+            startTime = times[0].children[0];
+            endTime = times[0].children[2];
+            // startTime == <time class="event-time-12hr" datetime="2020-12-26">1:30 PM</time>
+            // endTime == <time class="event-time-12hr" datetime="2020-12-26">2:30 PM</time>
+          }
+
+          startTimeTxt = startTime.innerText;
+          endTimeTxt = endTime.innerText;
+
+          newStartTime = formatTime3(startTimeTxt);       // "1:30p"
+          newEndTime = formatTime3(endTimeTxt);           // "2:30p"
+
+          // convert start/end EST times to users time zone
+          newStartTime = formatAndConvertTZ2(newStartTime) + "m";
+          newEndTime = formatAndConvertTZ2(newEndTime) + "m";
+
+          // update DOM with new times
+          startTime.innerText = newStartTime;
+          endTime.innerText = newEndTime;
         }
+
       }, 2000);
       // END OF CALLBACK ***********************************************************
 
@@ -364,11 +426,11 @@ today, and this weekend. Schedule of who’s streaming, when, and where.">
 
       // TO DO:
       // 1) TEST- Fix times for calendar on hover events longer than one day
-      // 2) write code to change times on individual event page
+      // 2) TEST- write code to change times on individual event page
       // 3) write code to change times below calendar (white calender box)
-      // 3) Refactor format time zone functions- consolidate into 1 function
-      // 4) Format times below calendar ("PM" and "AM")
-      // 5) Test on various browsers / devices
+      // 4) Refactor format time zone functions- consolidate into 1 function
+      // 5) Format times below calendar ("PM" and "AM")
+      // 6) Test on various browsers / devices
 
       // DONE:
       // - Fix times for calendar on hover events longer than one day
