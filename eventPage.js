@@ -12,21 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wait 2 seconds for data to load, then run script
   setTimeout(() => {
 
+    // KEEP ORIGINAL NOTE- Don't modify times
     let newNote = "Note: all times in flyer are in " + timeZone;
 
     // grab note html element
-    let note = document.getElementsByClassName("sqs-block-content")[0].children[1];
+    // let note = document.getElementsByClassName("sqs-block-content")[0].children[1];
     // note == <p class="" style="white-space:pre-wrap;"><em>Note: all times in flyer are PST (GMT-8)</em></p>
 
     // if note is not undefined (exists), update note inner text to display users time
-    if (note) note.innerText = newNote;
+    // if (note) note.innerText = newNote;
 
     // grab event times (lefthand sidebar)
     let times = document.getElementsByClassName("event-time-12hr");
     // times == [time.event-time-12hr, time.event-time-12hr]
 
     let isMultiDayEvent = times.length > 1;
-
     let startTime;
     let endTime;
     let startTimeTxt;
