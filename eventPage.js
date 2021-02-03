@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
 
     // KEEP ORIGINAL NOTE- Don't modify times
-    let newNote = "Note: all times in flyer are in " + timeZone;
+    // let newNote = "Note: all times in flyer are in " + timeZone;
 
     // grab note html element
     // let note = document.getElementsByClassName("sqs-block-content")[0].children[1];
@@ -33,20 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let endTimeTxt;
     let newStartTime;
     let newEndTime;
-
+    debugger
     if (isMultiDayEvent) {
       startTime = times[0];
       endTime = times[1];
       // startTime == <time class="event-time-12hr" datetime="2020-12-26">1:30 PM</time>
       // endTime == <time class="event-time-12hr" datetime="2020-12-26">2:30 PM</time>
-
+      debugger
       // NOT a multi day event
     } else {
-
+      debugger
       startTime = times[0].children[0];
       endTime = times[0].children[2];
       // startTime == <time class="event-time-12hr" datetime="2020-12-26">1:30 PM</time>
       // endTime == <time class="event-time-12hr" datetime="2020-12-26">2:30 PM</time>
+      debugger
     }
 
     startTimeTxt = startTime.innerText;
