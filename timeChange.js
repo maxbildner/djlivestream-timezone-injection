@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
       // *************************************************************************
-      // REPLACE CALENDAR TIMES (white text on black background squares)
+      // REPLACE CALENDAR TIMES 1 (white text on black background squares)
 
       // grab all span elements in calendar that have times (small time blocks)
       let times = document.getElementsByClassName("item-time item-time--12hr");
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
       // *************************************************************************
-      // REPLACE CALENDAR TIMES (black text on white squares on mouse hover)
+      // REPLACE CALENDAR TIMES 2 (black text on white squares on mouse hover)
 
       // grab all li elements in calendar (big time blocks)
       let bigSquareTimes = document.getElementsByClassName("flyoutitem");
@@ -80,17 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // grab Day, Month, Date, Start Time
           startTime = startTime.split(" ");
-          var startDay = removeChar(startTime[0], ",");   // "Sat"
-          var startMonth = startTime[1];                  // "Dec"
-          var startDate = removeChar(startTime[2], ",");  // "26"
-          startTime = startTime[startTime.length - 1];    // "1:30pm"
+          var startDay = removeChar(startTime[0], ",");   // "Thu"
+          var startMonth = startTime[1];                  // "Feb"
+          var startDate = removeChar(startTime[2], ",");  // "4"
+          startTime = startTime[startTime.length - 1];    // "7:30pm"
 
           // grab Day, Month, Date, End Time
           endTime = endTime.split(" ");
-          var endDay = removeChar(endTime[0], ",");     // "Fri"
-          var endMonth = endTime[1];                    // "Jan"
-          var endDate = removeChar(endTime[2], ",");    // "1"
-          endTime = endTime[endTime.length - 1];        // "2:30pm"
+          var endDay = removeChar(endTime[0], ",");     // "Tue"
+          var endMonth = endTime[1];                    // "Feb"
+          var endDate = removeChar(endTime[2], ",");    // "9"
+          endTime = endTime[endTime.length - 1];        // "2:30am"
         }
 
         // remove "m"
@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // endTime == "11:55p"
 
         // convert EST times to users time zone
-        let newStartTime = formatAndConvertTZ2(startTime);
+        let newStartTime = formatAndConvertTZ(startTime);
         // newStartTime == "1p"  or   "1:30p"   (will be "1p" if no minutes ex. 1:30)
 
-        let newEndTime = formatAndConvertTZ2(endTime);
+        let newEndTime = formatAndConvertTZ(endTime);
 
         let newTime;
         if (timeIsMultiday) {
@@ -138,11 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let startTimeTxt = startTime.innerHTML;
         // startTime == "1:00 AM"
 
-        startTimeTxt = formatTime3(startTimeTxt, true);
+        startTimeTxt = removeCharAndSpace(startTimeTxt, true);
         // startTimeTxt == "1:00p"
 
         // convert EST to users time zone
-        let newStartTime = formatAndConvertTZ2(startTimeTxt, true) + "m";
+        let newStartTime = formatAndConvertTZ(startTimeTxt, true) + "m";
 
         // replace old time with new time
         startTime.innerHTML = newStartTime;
@@ -152,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let endTimeTxt = endTime.innerHTML;
 
-        endTimeTxt = formatTime3(endTimeTxt);
+        endTimeTxt = removeCharAndSpace(endTimeTxt);
 
-        let newEndTime = formatAndConvertTZ2(endTimeTxt, true) + "m";
+        let newEndTime = formatAndConvertTZ(endTimeTxt, true) + "m";
 
         endTime.innerHTML = newEndTime;
 
@@ -205,12 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
       startTimeTxt = startTime.innerText;
       endTimeTxt = endTime.innerText;
 
-      newStartTime = formatTime3(startTimeTxt);       // "1:30p"
-      newEndTime = formatTime3(endTimeTxt);           // "2:30p"
+      newStartTime = removeCharAndSpace(startTimeTxt);       // "1:30p"
+      newEndTime = removeCharAndSpace(endTimeTxt);           // "2:30p"
 
       // convert start/end EST times to users time zone
-      newStartTime = formatAndConvertTZ2(newStartTime) + "m";
-      newEndTime = formatAndConvertTZ2(newEndTime) + "m";
+      newStartTime = formatAndConvertTZ(newStartTime) + "m";
+      newEndTime = formatAndConvertTZ(newEndTime) + "m";
 
       // update DOM with new times
       startTime.innerText = newStartTime;
@@ -232,27 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-
   // "1:00 AM" => "1:00a" 
   // "3:05 AM" => "3:05a"
-  function formatTime3(string) {
-    let newStr = "";
+  function removeCharAndSpace(string) {
 
-    let strArr = string.split(" ");
-    // strArr = ["1:00", "AM"]
+    string = string.split(" ").join("").toLowerCase();
+    // string = "1:00am"
 
-    newStr += strArr[0];
-
-    let isAM = strArr[1][0] === "A";
-
-    if (isAM) {
-      newStr += "a";
-
-    } else {
-      newStr += "p";
-    }
-
-    return newStr;
+    return removeChar(string, "m");
   }
 
 
@@ -297,15 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-
-  // "2:30p"    =>    "11:30a"
-  function formatAndConvertTZ2(est, belowCal = false) {
+  function formatAndConvertTZ(est, belowCal = false) {
     // est == "10a"   or "2:30p"
 
     // convert est string to 24 hour string format ("20:00:00")
     est = convertTo24HRFormat(est);
+    // est == "15:00:00"
 
-    // convert EST time to user's time
+    // userTime == "Tue Nov 03 2020 08:00:00 GMT-0500 (Eastern Standard Time)"
     let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toLocaleString();
     // userTime == "11/3/2020, 8:00:00 AM"
 
@@ -314,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // grab hh:mm:ss part only
     userTime = userTime.split(" ")[1].split(":");
-    // userTime == ["10", "00", "00"]
+    // userTime == ["12", "00", "00"]
 
     // remove seconds
     userTime = userTime.slice(0, userTime.length - 1).join(":");
@@ -323,55 +309,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasMinutes = userTime.split(":")[1] !== "00";
     // hasMinutes == false
 
+    // remove minutes (if none) only if time is on calendar (not below cal)
     if (!hasMinutes && !belowCal) {
 
-      // remove extra zeros "00"
-      userTime = userTime.split(":")[0];
-      // userTime == "8"
-
-    }
-
-    userTime = userTime + ((isAM) ? 'a' : 'p');
-    // userTime == "8a"
-    return userTime;
-  }
-
-
-
-  function formatAndConvertTZ(est) {
-    // est == "10a"   or "2:30p"
-    let hours;
-    let minutes;
-
-    // convert est string to 24 hour string format ("20:00:00")
-    // if AM time
-    est = convertTo24HRFormat(est);
-
-    // userTIme == "Tue Nov 03 2020 08:00:00 GMT-0500 (Eastern Standard Time)"
-    let userTime = convertTZ(`2020/12/3 ${est} GMT-0500`, timeZone).toLocaleString();
-    // userTime == "11/3/2020, 8:00:00 AM"
-
-    let isAM = (userTime.split(" ")[2] === "AM");
-    // isAM == true
-
-    userTime = userTime.split(" ")[1].slice(0, 4);
-    // userTime == "8:00"
-
-    let hasMinutes = Number(userTime.slice(2)) > 0;
-    // hasMinutes == false
-
-    if (!hasMinutes) {
-
-      // remove extra zeros "00"
+      // remove extra zeros "00" (if any)
       userTime = userTime.split(":")[0];
       // userTime == "8"
     }
 
-    userTime = userTime + ((isAM) ? 'a' : 'p');
+    // add 'a' or 'p'
+    userTime = userTime + (isAM ? 'a' : 'p');
     // userTime == "8a"
 
     return userTime;
   }
+
 
   function convertTZ(date, tzString) {
     return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", { timeZone: tzString }));
@@ -379,10 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TO DO:
   // 1) Fix Bug- time changes but day does not update (guide page and individual event page)
-  // 2) Refactor format time zone functions- consolidate into 1 function
-  // 3) Test on various browsers / devices
+  // 2) Test on various browsers / devices
 
   // DONE:
+  // - Refactor format time zone functions- consolidate into 1 function
   // - TEST- keep note in individual event page the same
   // - TEST- write code to change times on individual event page
   // - TEST- Fix times for calendar on hover events longer than one day
