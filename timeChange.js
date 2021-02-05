@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ex. timeZone == "America/New_York"
   // ex. timeZone == "America/Los_Angeles"
 
-  let title = "all times in calendar below are in " + timeZone;
+  let title = "times in " + timeZone + " unless otherwise noted";
 
   // Wait 2 seconds for calendar to load, then run script
   setTimeout(() => {
@@ -19,8 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // grab event details title div block
       let eventDetailsTitle = document.getElementById("block-f8bcca40e6962c1021ba");
+
       // replace event details title with dynamic time zone text
-      eventDetailsTitle.childNodes[0].firstChild.firstChild.innerHTML = title;
+      eventDetailsTitle.childNodes[0].firstChild.innerText = title;
 
 
       // *************************************************************************
